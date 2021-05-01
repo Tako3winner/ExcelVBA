@@ -1,0 +1,43 @@
+Option Explicit
+
+Private Enum Col
+    日付 = 1
+    PCR単日検査実施件数
+End Enum
+
+Sub PCR検査数一覧表示()
+
+'画面描写をOFFにする
+Application.ScreenUpdating = False
+
+Dim MAIN_SHEET As Worksheet: Set MAIN_SHEET = ThisWorkbook.Worksheets("Main")
+Dim PCRTEST_SHEET As Worksheet: Set PCRTEST_SHEET = ThisWorkbook.Worksheets("pcr_tested_daily")
+Dim i As Long
+Dim j As Long: j = 2
+Dim pcrTestNum As Long: pcrTestNum = 0
+Dim PcrLastRow As Long: PcrLastRow = PCRTEST_SHEET.Cells(Rows.Count, Col.PCR単日検査実施件数).End(xlUp).Row
+Dim MainLastRow As Long: MainLastRow = MAIN_SHEET.Cells(Rows.Count, Col.PCR単日検査実施件数).End(xlUp).Row
+
+'MainシートのD2セルにPCR検査数の下限値を入力する(下限値以上の検査をした日付が一覧表示される)
+If MAIN_SHEET.Range("D2").Value = "" Then
+    MsgBox "MainシートのD2セルに検査数の下限値を入力して下さい。"
+    Exit Sub
+Else
+     pcrTestNum = MAIN_SHEET.Range("D2").Value
+End If
+
+'Mainシート内の前回の一覧データをクリア(初期化)する
+If MAIN_SHEET.Range("A2") <> "" Or MAIN_SHEET.Range("B2") <> "" Then
+    MAIN_SHEET.Range("A2:B" & MainLastRow).Clear
+End If
+
+'シート「pcr_tested_daily」のデータをMainシートに転記する
+For i = 2 To PcrLastRow
+    If PCRTEST_SHEET.Cells(i, Col.PCR単日検査実施件数).Value >= pcrTestNum Then
+        MAIN_SHEET.Cells(j, Col.日付) = WorksheetFunction.Text(PCRTEST_SHEET.Cells(i, Col.日付), "yyyy/m/d(aaa)")
+        MAIN_SHEET.Cells(j, Col.PCR単日検査実施件数) = WorksheetFunction.Text(PCRTEST_SHEET.Cells(i, Col.PCR単日検査実施件数), "###,###")
+        j = j + 1
+    End If
+Next i
+
+End Sub
