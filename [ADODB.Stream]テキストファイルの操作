@@ -1,0 +1,56 @@
+Option Explicit
+
+Dim OpenFile  As Variant
+Dim text As String
+
+Sub Qiita記事をもっと手軽に()
+
+'ダイアログボックスからファイルを選択するとファイルが格納される。キャンセルするとフラグ(False)が返される
+OpenFile = Application.GetOpenFilename("テキストファイル (*.txt),*.txt")
+
+If OpenFile = False Then
+    MsgBox "キャンセルしました。"
+    Exit Sub
+End If
+
+'テキストファイル内の全文をString型の変数に格納(読み込み)
+text = ReadFileText(OpenFile)
+
+'----------ここから新しいファイルへの書き込みと上書き保存---------------------
+Dim FSO As Object: Set FSO = CreateObject("Scripting.FileSystemObject")
+Dim TempTextFile As Variant
+TempTextFile = ThisWorkbook.Path & "\tmpQiita_.txt"
+'既に同名のファイルがあったら削除する(エラー回避)
+    If FSO.FileExists(TempTextFile) = True Then
+        FSO.GetFile(TempTextFile).Delete
+    End If
+'このブックと同じ階層に、tmpQiita_.txtというファイルを作成する
+'この時点では空のテキストファイルです。
+FSO.CreateTextFile TempTextFile
+'新しいファイル「tmpQiita_.txt」に先ほど読み込んだtextを書き込んで上書き保存します。
+Call WriteFileText(text & "「これが新しくできたファイル」", TempTextFile)
+Set FSO = Nothing
+End Sub
+
+'テキストファイルの文字コードをUTF-8に設定してから書きこむ
+Function WriteFileText(ByVal text As String, ByVal TempTextFile As String)
+    Dim AD As Object: Set AD = CreateObject("ADODB.Stream")
+    AD.Charset = "utf-8"
+    '2はテキストファイル
+    AD.Type = 2
+    AD.Open
+    AD.WriteText text
+    '2は上書き保存
+    AD.SaveToFile (TempTextFile), 2
+    AD.Close
+End Function
+
+'テキストファイルの文字コードをUTF-8に設定してから読み込む
+Function ReadFileText(ByVal FilePath As String) As String
+    Dim AD As Object: Set AD = CreateObject("ADODB.Stream")
+    AD.Charset = "utf-8"
+    AD.Open
+    AD.LoadFromFile FilePath
+    ReadFileText = AD.ReadText
+    AD.Close
+End Function
