@@ -1,0 +1,44 @@
+Option Explicit
+
+
+Sub 請求書データ転記とPDF化()
+
+Application.ScreenUpdating = False
+
+Set SHEET_転記内容 = ThisWorkbook.Worksheets("転記内容")
+Set SHEET_請求書 = ThisWorkbook.Worksheets("請求書")
+
+Dim lastRowNum As Long: lastRowNum = SHEET_転記内容.Cells(Rows.Count, Col.請求書番号).End(xlUp).Row
+Dim i As Long
+
+For i = 2 To lastRowNum
+
+    '請求書シート(雛形)を請求書シートの一番右側にコピーして、アクティブ状態にする
+    SHEET_請求書.Copy After:=Worksheets(Worksheets.Count)
+    Worksheets(Worksheets.Count).Activate
+    
+    With ActiveSheet
+        'アクティブワークシート名変更
+        .Name = SHEET_転記内容.Cells(i, Col.シート名)
+         '転記内容を転記する
+        .Range(R_請求番号) = SHEET_転記内容.Cells(i, Col.請求書番号)
+        .Range(R_請求日) = SHEET_転記内容.Cells(i, Col.請求日)
+        .Range(R_請求先会社名) = SHEET_転記内容.Cells(i, Col.請求先会社名)
+        .Range(R_請求先担当者氏名) = SHEET_転記内容.Cells(i, Col.請求先担当者氏名)
+        .Range(R_請求タイトル) = SHEET_転記内容.Cells(i, Col.請求タイトル)
+        .Range(R_お支払期限) = SHEET_転記内容.Cells(i, Col.お支払期限)
+        .Range(R_摘要単価1) = SHEET_転記内容.Cells(i, Col.摘要単価1)
+        .Range(R_備考) = SHEET_転記内容.Cells(i, Col.備考)
+        
+        'アクティブワークシート名と同じ名前でPDFとして保存する（保存先は、このExcelファイルと同じ階層）
+        Dim fileName As String: fileName = ThisWorkbook.Path & "\" & SHEET_転記内容.Cells(i, Col.シート名) & ".pdf"
+        
+        .ExportAsFixedFormat Type:=xlTypePDF, fileName:=fileName
+    End With
+    
+Next i
+
+End Sub
+
+
+

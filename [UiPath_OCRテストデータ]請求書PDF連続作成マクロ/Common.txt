@@ -1,0 +1,29 @@
+Option Explicit
+
+'転記シートの列項目
+Public Enum Col
+    請求書番号 = 1
+    請求日
+    請求先会社名
+    請求先担当者氏名
+    請求タイトル
+    摘要単価1
+    お支払期限
+    備考
+    シート名
+End Enum
+
+'ワークシート名
+Global SHEET_転記内容 As Worksheet
+Global SHEET_請求書 As Worksheet
+
+'請求書シートのセルの名前の定義
+Global Const R_請求番号 = "請求書番号"
+Global Const R_請求日 = "請求日"
+Global Const R_請求先会社名 = "請求先会社名"
+Global Const R_請求先担当者氏名 = "請求先担当者氏名"
+Global Const R_請求タイトル = "請求タイトル"
+Global Const R_お支払期限 = "お支払期限"
+Global Const R_摘要単価1 = "摘要単価1"
+Global Const R_備考 = "備考"
+Global Const R_シート名 = "シート名"
